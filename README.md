@@ -33,21 +33,47 @@ app.listen(port, () => {
 
 ### As a CLI Tool
 
+The server can be configured using either a YAML file or CLI arguments. CLI arguments will override YAML settings.
+
 ```bash
-# Basic usage
-node src/index.mjs --path ./public --port 3000
+# Using default config.yaml
+node src/index.mjs
 
-# With compression
-node src/index.mjs --path ./public --compression --port 3000
+# Using custom config file
+node src/index.mjs --config ./my-config.yaml
 
-# With proxy
-node src/index.mjs --path ./public --proxy '{"\/api":"http://api.example.com"}' --port 3000
+# Override config with CLI arguments
+node src/index.mjs --port 8080 --compression
 
-# With dev server
-node src/index.mjs --path ./public --devServer --port 3000
+# All CLI options
+node src/index.mjs --path ./public --compression --port 3000 --proxy '{"\/api":"http://api.example.com"}' --devServer --launch
+```
 
-# Launch browser automatically (Windows only)
-node src/index.mjs --path ./public --launch --port 3000
+### YAML Configuration
+
+Create a `config.yaml` file to configure the server:
+
+```yaml
+# Port to listen on
+port: 3000
+
+# Path to serve static files from
+path: ./public
+
+# Enable compression
+compression: true
+
+# Proxy configuration
+proxy:
+  /api: http://api.example.com
+  /auth: http://auth.example.com
+
+# Development server settings
+devServer: false
+noReload: false
+
+# Launch browser on Windows
+launch: false
 ```
 
 ## API Reference
