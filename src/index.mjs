@@ -5,12 +5,13 @@ import yargs from 'yargs';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import compression from 'compression';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { readFileSync } from 'fs';
-import yaml from 'js-yaml';
+import dotenv from 'dotenv';
 
+/*
+import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+*/
 
 const debugApp = debug('app');
 
@@ -35,25 +36,29 @@ function parseProxyConfig(proxyStr) {
 }
 
 /**
- * Loads configuration from YAML file and merges with CLI arguments
- * @param {string} configPath - Path to YAML config file
+ * Loads configuration from environment variables and CLI arguments
  * @param {Object} cliArgs - CLI arguments
  * @returns {Object} Merged configuration
  */
-function loadConfig(configPath, cliArgs) {
-    try {
-        const yamlConfig = yaml.load(readFileSync(configPath, 'utf8'));
-        return {
-            ...yamlConfig,
-            ...cliArgs
-        };
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            debugApp(`No config file found at ${configPath}, using CLI arguments only`);
-            return cliArgs;
-        }
-        throw error;
-    }
+function loadConfig(cliArgs) {
+    // Load .env file if it exists
+    dotenv.config();
+
+    // Environment variables with defaults
+    const envConfig = {
+        port: process.env.PORT || 4173,
+        path: process.env.STATIC_PATH,
+        compression: process.env.COMPRESSION === 'true',
+        proxy: process.env.PROXY,
+        devServer: process.env.DEV_SERVER === 'true',
+        noReload: process.env.NO_RELOAD === 'true',
+        launch: process.env.LAUNCH === 'true'
+    };
+
+    return {
+        ...envConfig,
+        ...cliArgs
+    };
 }
 
 /**
@@ -99,21 +104,55 @@ export default function createServer({ path, compression: enableCompression, pro
 // CLI entry point
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const { argv } = yargs(process.argv.slice(2))
-        .option('config', {
-            alias: 'c',
+        .option('port', {
+            alias: 'p',
+            type: 'number',
+            description: 'Port to listen on',
+            default: process.env.PORT || 4173
+        })
+        .option('path', {
+            alias: 'd',
             type: 'string',
-            description: 'Path to YAML config file',
-            default: './config.yaml'
+            description: 'Path to serve static files from'
+        })
+        .option('compression', {
+            alias: 'c',
+            type: 'boolean',
+            description: 'Enable compression',
+            default: process.env.COMPRESSION === 'true'
+        })
+        .option('proxy', {
+            alias: 'x',
+            type: 'string',
+            description: 'Proxy configuration as comma-separated key=value pairs'
+        })
+        .option('devServer', {
+            alias: 'd',
+            type: 'boolean',
+            description: 'Enable development server with hot reload',
+            default: process.env.DEV_SERVER === 'true'
+        })
+        .option('noReload', {
+            alias: 'n',
+            type: 'boolean',
+            description: 'Disable hot reload in development server',
+            default: process.env.NO_RELOAD === 'true'
+        })
+        .option('launch', {
+            alias: 'l',
+            type: 'boolean',
+            description: 'Launch browser on Windows',
+            default: process.env.LAUNCH === 'true'
         });
 
-    const config = loadConfig(argv.config, argv);
+    const config = loadConfig(argv);
     const app = createServer({
         path: config.path,
         compression: config.compression,
         proxy: config.proxy
     });
 
-    const port = config.port || 4173;
+    const port = config.port;
     const server = app.listen(port, async () => {
         const actualPort = server.address().port;
         debugApp(`Node JS Server Started at ${actualPort} `);
