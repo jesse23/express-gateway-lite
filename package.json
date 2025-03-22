@@ -1,0 +1,41 @@
+{
+  "name": "express-gateway-lite",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.mjs --path ./public --compression --port 3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jesse23/express-gateway-lite.git"
+  },
+  "keywords": [
+    "express",
+    "gateway",
+    "proxy",
+    "static",
+    "server"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jesse23/express-gateway-lite/issues"
+  },
+  "homepage": "https://github.com/jesse23/express-gateway-lite#readme",
+  "description": "A lightweight Express-based gateway server with proxy and static file serving capabilities",
+  "dependencies": {
+    "compression": "^1.7.4",
+    "debug": "^4.3.4",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "yargs": "^17.7.2"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.mjs",
+      "types": "./src/index.d.ts"
+    }
+  }
+}
