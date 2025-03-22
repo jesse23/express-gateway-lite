@@ -15,6 +15,26 @@ const __dirname = dirname(__filename);
 const debugApp = debug('app');
 
 /**
+ * Parses proxy configuration string into a map
+ * @param {string} proxyStr - Comma-separated string of key=value pairs
+ * @returns {Object} Proxy configuration map
+ */
+function parseProxyConfig(proxyStr) {
+    if (!proxyStr) return {};
+    
+    return proxyStr.split(',')
+        .map(pair => pair.trim())
+        .filter(pair => pair)
+        .reduce((acc, pair) => {
+            const [key, value] = pair.split('=').map(s => s.trim());
+            if (key && value) {
+                acc[key] = value;
+            }
+            return acc;
+        }, {});
+}
+
+/**
  * Loads configuration from YAML file and merges with CLI arguments
  * @param {string} configPath - Path to YAML config file
  * @param {Object} cliArgs - CLI arguments
@@ -41,7 +61,7 @@ function loadConfig(configPath, cliArgs) {
  * @param {Object} options - Server configuration options
  * @param {string} options.path - Path to serve static files from
  * @param {boolean} options.compression - Whether to enable compression
- * @param {Object} options.proxy - Proxy configuration map
+ * @param {string} options.proxy - Proxy configuration as comma-separated string
  * @returns {import('express').Application} Express application instance
  */
 export default function createServer({ path, compression: enableCompression, proxy } = {}) {
@@ -50,9 +70,9 @@ export default function createServer({ path, compression: enableCompression, pro
 
     // Setup proxy if configured
     if (proxy) {
-        const proxyMap = typeof proxy === 'string' ? JSON.parse(proxy) : proxy;
+        const proxyMap = parseProxyConfig(proxy);
         Object.entries(proxyMap).forEach(([key, value]) => {
-            console.log('key', key);
+            console.log('Setting up proxy:', key, '->', value);
             app.use(key, createProxyMiddleware({
                 target: value,
                 changeOrigin: true,

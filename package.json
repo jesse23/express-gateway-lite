@@ -5,7 +5,7 @@
   "main": "src/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.mjs --path ./public --compression --port 3000",
+    "start": "node src/index.mjs --path ./public --proxy /api/users=http://user-service:8080/v2 --compression --port 3000",
     "start:config": "node src/index.mjs --config ./public/config.yaml"
   },
   "repository": {

@@ -11,11 +11,15 @@ path: ./public
 # Enable compression
 compression: true
 
-# Proxy configuration
-proxy:
-  /api: http://api.example.com
-  /auth: http://auth.example.com
+# Proxy configuration as comma-separated key=value pairs
+proxy: >
+  /api/users=http://user-service:8080/v2,
+  /api/auth=http://auth-service:8080/oauth,
+  /ui/components=http://component-service:8080/public,
 
 # Development server settings
 devServer: false
 noReload: false
+
+# Launch browser on Windows
+launch: false 
