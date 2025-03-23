@@ -62,13 +62,24 @@ app.post('/callback', bodyParser.urlencoded({ extended: false }), (req, res, nex
     // Handle Logout
     res.redirect('/');
   } else {
+
     // Handle Login Authentication Response
     passport.authenticate('saml', { failureRedirect: '/', failureFlash: true })(req, res, next);
   }
-}, (req, res) => {
+}, async (req, res) => {
   // Login success handler
   console.log('Callback post-authentication');
   if (req.isAuthenticated()) {
+    // Exchange the authorization code for tokens
+    /*
+    const tokenResponse = await axios.post(oauthConfig.tokenURL, {
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: oauthConfig.redirectUri,
+      client_id: oauthConfig.clientId,
+      client_secret: oauthConfig.clientSecret
+    });
+    */
     console.log('User authenticated, redirecting to home');
     res.redirect('/');
   } else {
