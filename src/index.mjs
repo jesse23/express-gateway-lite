@@ -44,6 +44,8 @@ function loadConfig(cliArgs) {
     // Load .env file if it exists
     dotenv.config();
 
+    console.log('process.env.STATIC_PATH:', process.env.STATIC_PATH);
+
     // Environment variables with defaults
     const envConfig = {
         port: process.env.PORT || 4173,
@@ -95,6 +97,7 @@ export default function createServer({ path, compression: enableCompression, pro
 
     // Setup static file serving
     if (path) {
+        console.log('Setting up static file serving at:', path);
         app.use(express.static(path));
     }
 
@@ -109,7 +112,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
             type: 'number',
             description: 'Port to listen on',
             default: process.env.PORT || 4173
-        })
+        });
+        /*
         .option('path', {
             alias: 'd',
             type: 'string',
@@ -119,7 +123,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
             alias: 'c',
             type: 'boolean',
             description: 'Enable compression',
-            default: process.env.COMPRESSION === 'true'
         })
         .option('proxy', {
             alias: 'x',
@@ -144,8 +147,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
             description: 'Launch browser on Windows',
             default: process.env.LAUNCH === 'true'
         });
+        */
 
     const config = loadConfig(argv);
+    console.log('Config:', config);
     const app = createServer({
         path: config.path,
         compression: config.compression,
